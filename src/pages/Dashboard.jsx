@@ -93,7 +93,6 @@ export default function Dashboard() {
             <h2 className="text-2xl font-bold tracking-tight">Monitoramento Ativo</h2>
           </div>
           <p className="text-gray-400 max-w-md font-medium">
-            O sistema está sincronizado com o Supabase. Todas as transações são auditadas por e-mail automaticamente.
           </p>
         </div>
         <Activity className="absolute -right-10 -bottom-10 text-white opacity-5 w-64 h-64 group-hover:scale-110 transition-transform duration-700" />
