@@ -1,58 +1,80 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { supabase } from '../services/supabaseClient';
-import { LogOut, LayoutDashboard, Users, Package, ShoppingBag } from 'lucide-react';
+import { 
+  LayoutDashboard, 
+  ShoppingBag, 
+  Users, 
+  Package, 
+  LogOut, 
+  UserCog 
+} from 'lucide-react';
 
 export default function Navbar() {
-  const { role } = useAuth();
-  const navigate = useNavigate();
+  const { signOut, role, user } = useAuth();
+  const location = useLocation();
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    navigate('/login');
-  };
+  // Função para verificar se a rota está ativa e mudar a cor
+  const isActive = (path) => location.pathname === path;
+
+  const linkClass = (path) => `
+    flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-xs uppercase tracking-tighter transition-all
+    ${isActive(path) 
+      ? 'bg-blue-600 text-white shadow-lg shadow-blue-100' 
+      : 'text-gray-400 hover:bg-gray-100 hover:text-gray-600'}
+  `;
 
   return (
-    <nav className="bg-white border-b border-gray-100 px-6 py-4 flex justify-between items-center sticky top-0 z-50 shadow-sm">
-      <div className="flex items-center gap-8">
-        <span className="text-xl font-black text-blue-600 tracking-tighter">VENDAS.PRO</span>
+    <nav className="bg-white border-b border-gray-100 sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
         
-        <div className="hidden md:flex gap-6 items-center">
-          {/* LOGICA: Só aparece se for ADMIN */}
-          {role === 'admin' ? (
-            <>
-              <Link to="/" className="text-gray-500 hover:text-blue-600 font-bold text-xs uppercase flex items-center gap-1">
-                <LayoutDashboard size={14}/> Dash
-              </Link>
-              <Link to="/vendas" className="text-gray-500 hover:text-blue-600 font-bold text-xs uppercase flex items-center gap-1">
-                <ShoppingBag size={14}/> Vendas
-              </Link>
-              <Link to="/clientes" className="text-gray-500 hover:text-blue-600 font-bold text-xs uppercase flex items-center gap-1">
-                <Users size={14}/> Usuários
-              </Link>
-            </>
-          ) : (
-            /* O QUE O CLIENTE VÊ: Apenas Produtos */
-            <span className="text-xs font-bold text-gray-300 uppercase tracking-widest">Painel do Cliente</span>
-          )}
-          
-          <Link to="/produtos" className="text-gray-900 hover:text-blue-600 font-black text-xs uppercase flex items-center gap-1 bg-blue-50 px-3 py-2 rounded-lg">
-            <Package size={14}/> Produtos
+        {/* LOGO */}
+        <div className="flex items-center gap-8">
+          <Link to="/" className="text-2xl font-black text-blue-600 tracking-tighter italic">
+            VENDAS.PRO
           </Link>
-        </div>
-      </div>
 
-      <div className="flex items-center gap-4">
-        <span className="text-[10px] font-bold bg-gray-100 px-2 py-1 rounded text-gray-500 uppercase">
-          {role}
-        </span>
-        <button 
-          onClick={handleLogout} 
-          className="p-2 text-gray-400 hover:text-red-500 transition-colors"
-          title="Sair do sistema"
-        >
-          <LogOut size={20} />
-        </button>
+          {/* LINKS DE NAVEGAÇÃO */}
+          <div className="hidden md:flex items-center gap-2">
+            
+            {/* Visível apenas para ADMIN */}
+            {role === 'admin' && (
+              <>
+                <Link title="Dashboard" to="/" className={linkClass('/')}>
+                  <LayoutDashboard size={18} /> Dash
+                </Link>
+                <Link title="Vendas" to="/vendas" className={linkClass('/vendas')}>
+                  <ShoppingBag size={18} /> Vendas
+                </Link>
+                <Link title="Clientes" to="/clientes" className={linkClass('/clientes')}>
+                  <Users size={18} /> Clientes
+                </Link>
+
+              </>
+            )}
+
+            {/* Visível para TODOS */}
+            <Link title="Produtos" to="/produtos" className={linkClass('/produtos')}>
+              <Package size={18} /> Produtos
+            </Link>
+          </div>
+        </div>
+
+        {/* PERFIL E SAIR */}
+        <div className="flex items-center gap-4">
+          <div className="hidden lg:block text-right">
+            <p className="text-[10px] font-black text-gray-400 uppercase leading-none">Bem-vindo</p>
+            <p className="text-xs font-bold text-gray-700">{user?.email?.split('@')[0]}</p>
+          </div>
+          
+          <div className="h-8 w-[1px] bg-gray-100 mx-2"></div>
+
+          <button 
+            onClick={signOut}
+            className="flex items-center gap-2 bg-red-50 text-red-500 px-4 py-2 rounded-xl font-black text-xs uppercase hover:bg-red-500 hover:text-white transition-all active:scale-95"
+          >
+            Sair <LogOut size={16} />
+          </button>
+        </div>
       </div>
     </nav>
   );
